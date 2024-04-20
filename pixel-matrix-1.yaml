@@ -1,0 +1,247 @@
+substitutions:
+  devicename: pixel-matrix-1
+  friendly_name: pixel-matrix-1
+  matrix_pin: D4 
+
+esphome:
+  name: $devicename 
+  friendly_name: $friendly_name
+  on_boot:
+    priority: -100
+    then: 
+      - lambda: |-
+          id(rgb8x32)->set_brightness(200);
+
+esp8266:
+  board: nodemcuv2
+
+api:
+  encryption:
+    key: !secret API_Password_B64
+  services:
+    - service: brightness
+      variables:
+        brightness: int
+      then:
+        lambda: |-
+          id(rgb8x32)->set_brightness(brightness);
+
+ota:
+  password: !secret OTA_Password
+
+web_server:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "$devicename Fallback Hotspot"
+    password: !secret Fallback_Password
+
+captive_portal:
+
+logger:
+
+external_components:
+  - source: esphome-pixel-matrix/components
+    components: [ ehmtxv2 ]
+
+font: 
+  - file: esphome-pixel-matrix/fonts/Calcium.ttf
+    id: default_font
+    size: 16
+    glyphs:  |
+      !?"%‰()+*=,-_.:°µ²³0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnÖÄÜöäüopqrstuvwxyz€$@<>/
+  - file: esphome-pixel-matrix/fonts/MatrixLight8.bdf
+    id: pixel_font_1
+    glyphs:  |
+      ! "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz°
+  - file: esphome-pixel-matrix/fonts/mateine.ttf
+    size: 16
+    id: pixel_font_2
+    glyphs:  |
+      !?"%()+*=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnÖÄÜöäüopqrstuvwxyz@<>ß§€/
+  - file: esphome-pixel-matrix/fonts/MatrixChunky6.bdf
+    id: special_font
+    glyphs:  |
+      ! "#$%&'()*+,-./0123456789:APMTapmt
+
+image:
+  - file: esphome-pixel-matrix/images/1pixel.gif
+    id: breaking20237
+
+animation:
+  - file: esphome-pixel-matrix/images/1pixel.gif
+    id: breaking202371
+
+binary_sensor:
+  - platform: status
+    name: "$devicename Status"
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+light:
+  - platform: neopixelbus
+    name: "$devicename Light"
+    id: pixel_light
+    type: GRB
+    variant: WS2812
+    pin: $matrix_pin
+    num_leds: 256
+    color_correct: [30%, 30%, 30%]
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      lambda: |-
+        id(pixel_display)->set_enabled(false);
+    on_turn_off:
+      lambda: |-
+          id(pixel_display)->set_enabled(true);
+
+display:
+  - platform: addressable_light
+    id: pixel_display
+    addressable_light_id: pixel_light
+    width: 32
+    height: 8
+    pixel_mapper: |-
+      if (x % 2 == 0) {
+        return (x * 8) + y;
+      }
+      return (x * 8) + (7 - y);
+    rotation: 0°
+    update_interval: 16ms
+    auto_clear_enabled: true
+    lambda: |-
+      id(rgb8x32)->tick();
+      id(rgb8x32)->draw();
+
+ehmtxv2:
+  id: rgb8x32
+  matrix_component: pixel_display
+  time_component: ha_time
+  time_format: "%I:%M"
+  date_format: "%d/%m"
+  show_seconds: false
+  show_dow: false
+  show_date: false
+  week_start_monday: false
+  scroll_count: 2
+  scroll_interval: 80
+  rainbow_interval: 32
+  clock_interval: 30
+  blend_steps: 16
+  scroll_small_text: false
+  allow_empty_screen: false
+  default_font_id: default_font
+  default_font_yoffset: 7
+  default_font_xoffset: 1
+  special_font_id: special_font
+  special_font_yoffset: 6
+  boot_logo: "[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63519,63519,63519,63519,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,63519,0,0,0,0,2016,0,0,0,0,0,0,0,0,0,0,31,0,0,0,0,0,0,0,0,0,63488,0,63488,0,0,0,63519,0,0,0,0,2016,2016,0,0,0,65514,0,65514,0,0,0,31,0,0,0,64512,0,0,64512,0,63488,63488,0,63488,63488,0,0,63519,63519,63519,0,0,2016,0,2016,0,65514,0,65514,0,65514,0,31,31,31,0,0,0,64512,64512,0,0,63488,63488,63488,63488,63488,0,0,63519,0,0,0,0,2016,0,2016,0,65514,0,65514,0,65514,0,0,31,0,0,0,0,64512,64512,0,0,0,63488,63488,63488,0,0,0,63519,63519,63519,63519,0,2016,0,2016,0,65514,0,65514,0,65514,0,0,0,31,31,0,64512,0,0,64512,0,0,0,63488,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]"
+  icons:
+    # Need more icons? Check out https://developer.lametric.com/icons
+    - id: ha
+      file: esphome-pixel-matrix/icons/7956_ha.gif
+    - id: tempc
+      file: esphome-pixel-matrix/icons/2422_tempc.gif
+    - id: plug
+      file: esphome-pixel-matrix/icons/403_plug.gif
+    - id: humidity
+      file: esphome-pixel-matrix/icons/51764_humidity.gif
+    - id: co2
+      file: esphome-pixel-matrix/icons/30662_co2.gif
+    - id: smile
+      file: esphome-pixel-matrix/icons/87_smile.gif
+    - id: dog
+      file: esphome-pixel-matrix/icons/76_dog.gif
+    - id: water_empty
+      file: esphome-pixel-matrix/icons/24114_water_empty.gif
+    - id: water_full
+      file: esphome-pixel-matrix/icons/24120_water_full.gif
+    - id: matrix
+      file: esphome-pixel-matrix/icons/653_matrix.gif
+    - id: battery_full
+      file: esphome-pixel-matrix/icons/12126_battery_full.gif
+    - id: snow
+      file: esphome-pixel-matrix/icons/6554_snow.gif
+    - id: air_quality
+      file: esphome-pixel-matrix/icons/7789_air_quality.gif
+    - id: elcb_trip
+      file: esphome-pixel-matrix/icons/15352_elcb_trip.gif
+    - id: gate_open
+      file: esphome-pixel-matrix/icons/34927_gate_open.gif
+    - id: fire
+      file: esphome-pixel-matrix/icons/18854_fire.gif
+    - id: alien
+      file: esphome-pixel-matrix/icons/32173_alien.gif
+    - id: halloween
+      file: esphome-pixel-matrix/icons/4033_halloween.gif
+    - id: YouTube
+      file: esphome-pixel-matrix/icons/7998_YouTube.gif
+    - id: Netflix
+      file: esphome-pixel-matrix/icons/1442_Netflix.gif
+    - id: PrimeVideo
+      file: esphome-pixel-matrix/icons/44966_PrimeVideo.gif
+    - id: Hotstar
+      file: esphome-pixel-matrix/icons/1266_Hotstar.gif
+    - id: down
+      file: esphome-pixel-matrix/icons/7463_down.gif
+    - id: up
+      file: esphome-pixel-matrix/icons/858_up.gif
+    - id: motion
+      file: esphome-pixel-matrix/icons/31026_motion.gif
+    - id: weight
+      file: esphome-pixel-matrix/icons/12147_weight.gif
+    - id: sleep32
+      file: esphome-pixel-matrix/icons/sleep.gif
+  on_start_running:
+    then:
+      lambda: |-
+        ESP_LOGD(TAG, "Remove default clock and set new color");
+        id(rgb8x32)->del_screen("*", 2);
+        id(rgb8x32)->clock_screen(10, 10, true, 50, 150, 230); // lifetime, screen_time, default_font, r, g, b
+  on_next_screen:
+    - homeassistant.event:
+        event: esphome.new_screen
+        data_template:
+          iconname: !lambda "return icon.c_str();"
+          text: !lambda "return text.c_str();"
+
+number:
+  - platform: template
+    name: "$devicename brightness"
+    id: screen_brightness
+    min_value: 0
+    max_value: 255
+    update_interval: 10s
+    step: 25
+    lambda: |-
+      return id(rgb8x32)->get_brightness();
+    set_action:
+      lambda: |-
+        id(rgb8x32)->set_brightness(x);
+
+switch:
+  - platform: restart
+    name: "$devicename Restart"
+
+text_sensor:
+  - platform: version
+    name: ${devicename} ESPHome Version
+  - platform: wifi_info
+    ip_address:
+      name: ${devicename} IP
+    ssid:
+      name: ${devicename} SSID
+    bssid:
+      name: ${devicename} BSSID
+
+sensor:
+  - platform: wifi_signal
+    name: "$devicename WiFi Signal"
+    update_interval: 60s
+  - platform: uptime
+    name: "$devicename Uptime"
+

@@ -1,0 +1,30 @@
+{
+    "icons": [
+        { "id": "ha", "lameid": 7956 },
+        { "id": "tempc", "lameid": 2422 },
+        { "id": "plug", "lameid": 403 },
+        { "id": "humidity", "lameid": 51764 },
+        { "id": "co2", "lameid": 30662 },
+        { "id": "smile", "lameid": 87 },
+        { "id": "dog", "lameid": 76 },
+        { "id": "water_empty", "lameid": 24114 },
+        { "id": "water_full", "lameid": 24120 },
+        { "id": "matrix", "lameid": 653 },
+        { "id": "battery_full", "lameid": 12126 },
+        { "id": "snow", "lameid": 6554 },
+        { "id": "air_quality", "lameid": 7789 },
+        { "id": "elcb_trip", "lameid": 15352 },
+        { "id": "gate_open", "lameid": 34927 },
+        { "id": "fire", "lameid": 18854 },
+        { "id": "alien", "lameid": 32173 },
+        { "id": "halloween", "lameid": 4033 },
+        { "id": "YouTube", "lameid": 7998 },
+        { "id": "Netflix", "lameid": 1442 },
+        { "id": "PrimeVideo", "lameid": 44966 },
+        { "id": "Hotstar", "lameid": 1266 },
+        { "id": "down", "lameid": 7463 },
+        { "id": "up", "lameid": 858 },
+        { "id": "motion", "lameid": 31026 },
+        { "id": "weight", "lameid": 12147 }
+    ]
+}
